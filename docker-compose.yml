@@ -1,0 +1,38 @@
+version: "3.9"
+name: chalkboard
+
+services:
+  mongo:
+    container_name: chalkboard-db
+    image: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+    ports:
+      - 27017:27017
+
+  api:
+    container_name: chalkboard-api
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    environment:
+      - MONGO_INITDB_HOST=mongo
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+    ports:
+      - 5000:5000
+    depends_on:
+      - mongo
+
+  ui:
+    container_name: chalkboard-ui
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    environment:
+      - API_HOST=http://chalkboard-api:5000/api/v1/
+    ports:
+      - 8080:8080
+    depends_on:
+      - api
